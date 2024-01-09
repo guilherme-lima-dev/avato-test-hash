@@ -70,7 +70,8 @@ class AvatoTestCommand extends Command
         $io->note('Realizando requisição número: ' . ($iteration + 1));
 
         $params = ['inputString' => $inputString];
-        $response = $this->doRequest($params, "http://localhost:8000/calculate-hash", []);
+
+        $response = $this->doRequest($params);
 
         $avato = $this->createAvatoRequestObject($inputString, $response, $alias, $iteration);
 

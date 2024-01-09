@@ -3,47 +3,38 @@
 namespace App\Trait;
 
 use Exception;
+use GuzzleHttp\Client;
+use GuzzleHttp\Exception\GuzzleException;
 
 trait RequestTrait
 {
 
     const METHOD_GET = 'GET';
     const METHOD_POST = 'POST';
-    private function doRequest(array $params, $url, array $header, $method = self::METHOD_POST): ?array
+    private function doRequest(array $params, $method = self::METHOD_POST): ?array
     {
 
-        $curl = curl_init();
+        try {
 
-        $options = [
-            CURLOPT_URL => $url,
-            CURLOPT_RETURNTRANSFER => true,
-            CURLOPT_ENCODING => "",
-            CURLOPT_MAXREDIRS => 10,
-            CURLOPT_TIMEOUT => 40,
-            CURLOPT_HTTP_VERSION => CURL_HTTP_VERSION_1_1,
-            CURLOPT_CUSTOMREQUEST => $method,
-            CURLOPT_HTTPHEADER => $header
-        ];
+            $client = new Client([
+                'base_uri' => 'http://localhost:8000',
+            ]);
 
-        if ($method !== self::METHOD_GET) {
-            $options[CURLOPT_POSTFIELDS] = json_encode($params);
+            $response = $client->request(
+                self::METHOD_POST,
+                '/calculate-hash',
+                [
+                    'json' => $params
+                ]
+            );
+
+            $responseData = json_decode($response->getBody()->getContents(), true);
+
+            return $responseData;
+
+        } catch ( GuzzleException $e ) {
+            throw new Exception($e->getMessage());
         }
-
-        curl_setopt_array($curl, $options);
-
-        $response = curl_exec($curl);
-
-        $err = curl_error($curl);
-
-        curl_close($curl);
-
-        if ($err) {
-            throw new Exception('Erro ao executar requisição: ' . $err);
-        }
-
-        $raw = json_decode($response, true);
-
-        return is_array($raw) ? $raw : [];
 
     }
 }
