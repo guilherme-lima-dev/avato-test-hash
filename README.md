@@ -1,0 +1,1 @@
+# avato-test-hash
