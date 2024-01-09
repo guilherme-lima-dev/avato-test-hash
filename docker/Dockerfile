@@ -39,3 +39,8 @@ RUN printf '#!/bin/bash\nphp bin/console "$@"' > /usr/bin/sf && \
     chmod +x /usr/bin/sf
 
 WORKDIR /var/www/html
+
+COPY ../deploy.sh ./
+
+RUN ["chmod", "+x", "deploy.sh"]
+
