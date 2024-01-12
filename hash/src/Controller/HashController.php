@@ -12,7 +12,7 @@ use Symfony\Component\Routing\Annotation\Route;
 class HashController extends AbstractController
 {
 
-    public function __construct(private AvatoRequestsRepository $avatoRequestsRepository)
+    public function __construct(private readonly AvatoRequestsRepository $avatoRequestsRepository)
     {
     }
 
