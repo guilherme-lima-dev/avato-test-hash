@@ -4,8 +4,6 @@ namespace App\Command;
 
 use App\Entity\AvatoRequests;
 use App\Repository\AvatoRequestsRepository;
-use App\Trait\RequestTrait;
-use Doctrine\DBAL\Exception;
 use Symfony\Component\Console\Attribute\AsCommand;
 use Symfony\Component\Console\Command\Command;
 use Symfony\Component\Console\Exception\InvalidArgumentException;
@@ -14,6 +12,7 @@ use Symfony\Component\Console\Input\InputInterface;
 use Symfony\Component\Console\Input\InputOption;
 use Symfony\Component\Console\Output\OutputInterface;
 use Symfony\Component\Console\Style\SymfonyStyle;
+use Symfony\Contracts\HttpClient\HttpClientInterface;
 
 #[AsCommand(
     name: 'avato:test',
@@ -22,9 +21,10 @@ use Symfony\Component\Console\Style\SymfonyStyle;
 class AvatoTestCommand extends Command
 {
 
-    use RequestTrait;
-
-    public function __construct( private readonly AvatoRequestsRepository $avatoRequestsRepository )
+    public function __construct(
+        private readonly AvatoRequestsRepository $avatoRequestsRepository,
+        private readonly HttpClientInterface $client
+    )
     {
         parent::__construct();
     }
@@ -66,12 +66,22 @@ class AvatoTestCommand extends Command
         return Command::SUCCESS;
     }
 
-    private function makeRequestAndSaveResult($io, &$inputString, $alias, $iteration): void {
+    private function makeRequestAndSaveResult($io, &$inputString, $alias, $iteration): void
+    {
         $io->note('Realizando requisição número: ' . ($iteration + 1));
 
         $params = ['inputString' => $inputString];
 
-        $response = $this->doRequest($params);
+
+        $response = $this->client->request(
+            'POST',
+            'http://localhost:8000/calculate-hash',
+            [
+                'json' => $params
+            ]
+        );
+
+        $response = $response->toArray();
 
         $avato = $this->createAvatoRequestObject($inputString, $response, $alias, $iteration);
 
@@ -80,7 +90,8 @@ class AvatoTestCommand extends Command
         $this->avatoRequestsRepository->saveAndFlush($avato);
     }
 
-    private function createAvatoRequestObject($inputString, $response, $alias, $iteration): AvatoRequests {
+    private function createAvatoRequestObject($inputString, $response, $alias, $iteration): AvatoRequests
+    {
         return new AvatoRequests(
             requestNumber: $iteration + 1,
             inputString: $inputString,

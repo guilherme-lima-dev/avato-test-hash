@@ -4,7 +4,6 @@ namespace App\Repository;
 
 use App\Entity\AvatoRequests;
 use Doctrine\Bundle\DoctrineBundle\Repository\ServiceEntityRepository;
-use Doctrine\Persistence\ManagerRegistry;
 
 /**
  * @extends ServiceEntityRepository<AvatoRequests>
@@ -24,27 +23,26 @@ class AvatoRequestsRepository extends AbstractRepository
     public function search(array $filters, int $limit, int $offset)
     {
         $qb = $this->createQueryBuilder('a')
-        ->select('a.momentRequest, a.requestNumber, a.inputString, a.keyFound, a.alias');
+            ->select('a.momentRequest, a.requestNumber, a.inputString, a.keyFound, a.alias');
 
         if ($filters['lessThanAttempts'] ?? null) {
             $qb->andWhere('a.attempts < :lessThanAttempts')
-            ->setParameter('lessThanAttempts', $filters['lessThanAttempts']);
+                ->setParameter('lessThanAttempts', $filters['lessThanAttempts']);
         }
 
         if ($filters['attempts'] ?? null) {
             $qb->andWhere('a.attempts = :attempts')
-            ->setParameter('attempts', $filters['attempts']);
+                ->setParameter('attempts', $filters['attempts']);
         }
 
         if ($filters['alias'] ?? null) {
             $qb->andWhere('a.alias = :alias')
-            ->setParameter('alias', $filters['alias']);
+                ->setParameter('alias', $filters['alias']);
         }
 
         $qb->setFirstResult($offset)
             ->setMaxResults($limit);
 
         return $qb->getQuery()->getResult();
-
     }
 }

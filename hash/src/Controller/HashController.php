@@ -4,17 +4,17 @@ namespace App\Controller;
 
 use App\Repository\AvatoRequestsRepository;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
-use Symfony\Component\Cache\Adapter\FilesystemAdapter;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
 use Symfony\Component\RateLimiter\RateLimiterFactory;
 use Symfony\Component\Routing\Annotation\Route;
 
 class HashController extends AbstractController
 {
 
-    public function __construct(private AvatoRequestsRepository $avatoRequestsRepository){}
+    public function __construct(private AvatoRequestsRepository $avatoRequestsRepository)
+    {
+    }
 
     #[Route('/calculate-hash', name: 'app_hash', methods: ['POST'])]
     public function index(Request $request, RateLimiterFactory $hashApiLimiter): JsonResponse
@@ -36,14 +36,13 @@ class HashController extends AbstractController
         }
 
         $attempts = 0;
-        do{
+        do {
             $attempts++;
             $key = bin2hex(random_bytes(4));
-            $concat = $inputString.$key;
+            $concat = $inputString . $key;
 
             $hash = md5($concat);
-
-        }while(!str_starts_with($hash, '0000'));
+        } while (!str_starts_with($hash, '0000'));
 
         $responseData = [
             'hash' => $hash,
@@ -57,7 +56,6 @@ class HashController extends AbstractController
     #[Route('/results', name: 'results_list')]
     public function results(Request $request)
     {
-
         $page = $request->query->get('page') ?? 1;
         $limit = $request->query->get('maxPerPage') ?? 10;
 

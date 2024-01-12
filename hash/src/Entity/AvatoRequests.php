@@ -44,7 +44,7 @@ class AvatoRequests implements \JsonSerializable
         string $attempts,
         DateTime $momentRequest,
         string $alias
-    ){
+    ) {
         $this->requestNumber = $requestNumber;
         $this->inputString = $inputString;
         $this->keyFound = $keyFound;
@@ -104,7 +104,9 @@ class AvatoRequests implements \JsonSerializable
             'keyFound' => $this->keyFound,
             'hash' => $this->hash,
             'attempts' => $this->attempts,
-            'momentRequest' => $this->momentRequest instanceof \DateTimeInterface ? $this->momentRequest->format(\DateTime::RFC3339) : null,
+            'momentRequest' => $this->momentRequest instanceof \DateTimeInterface ? $this->momentRequest->format(
+                \DateTime::RFC3339
+            ) : null,
             'alias' => $this->alias,
         ];
     }
